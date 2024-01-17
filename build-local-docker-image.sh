@@ -45,12 +45,12 @@ function copy_gui_artifacts() {
 function package_nocodb() {
     # build nocodb ( pack nocodb-sdk and nc-gui )
     cd ${SCRIPT_DIR}/packages/nocodb
-    EE=true ${SCRIPT_DIR}/node_modules/.bin/webpack --config ${SCRIPT_DIR}/packages/nocodb/webpack.local.config.js || ERROR="package_nocodb failed"
+    EE=true ${SCRIPT_DIR}/node_modules/.bin/webpack --config ${SCRIPT_DIR}/packages/nocodb/webpack.config.js || ERROR="package_nocodb failed"
 }
 
 function build_image() {
     # build docker
-    docker build . -f Dockerfile.local -t nocodb-local || ERROR="build_image failed"
+    docker build . -f Dockerfile -t nocodb-local || ERROR="build_image failed"
 }
 
 function log_message() {
@@ -69,14 +69,14 @@ echo "Info: Stopping and removing existing container and image" | tee ${LOG_FILE
 stop_and_remove_container
 remove_image
 
-echo "Info: Installing dependencies" | tee -a ${LOG_FILE}
-install_dependencies 1>> ${LOG_FILE} 2>> ${LOG_FILE}
+# echo "Info: Installing dependencies" | tee -a ${LOG_FILE}
+# install_dependencies 1>> ${LOG_FILE} 2>> ${LOG_FILE}
 
-echo "Info: Building nc-gui" | tee -a ${LOG_FILE}
-build_gui 1>> ${LOG_FILE} 2>> ${LOG_FILE}
+# echo "Info: Building nc-gui" | tee -a ${LOG_FILE}
+# build_gui 1>> ${LOG_FILE} 2>> ${LOG_FILE}
 
-echo "Info: Copy nc-gui build to nocodb dir" | tee -a ${LOG_FILE}
-copy_gui_artifacts 1>> ${LOG_FILE} 2>> ${LOG_FILE}
+# echo "Info: Copy nc-gui build to nocodb dir" | tee -a ${LOG_FILE}
+# copy_gui_artifacts 1>> ${LOG_FILE} 2>> ${LOG_FILE}
 
 echo "Info: Build nocodb, package nocodb-sdk and nc-gui" | tee -a ${LOG_FILE}
 package_nocodb 1>> ${LOG_FILE} 2>> ${LOG_FILE}
