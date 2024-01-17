@@ -83,7 +83,7 @@ jobs:
 
   # Build docker image and push to docker hub
   release-docker:
-    needs: [process-input]
+    needs: [release-npm, process-input]
     uses: ./.github/workflows/release-docker.yml
     with:
       currentVersion: 'N/A'
