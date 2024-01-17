@@ -3,10 +3,47 @@ import type { ColumnType } from 'nocodb-sdk'
 import { RelationTypes, UITypes, isVirtualCol } from 'nocodb-sdk'
 import { ref } from 'vue'
 import { StreamBarcodeReader } from 'vue-barcode-reader'
-import { iconMap, useGlobal, useSharedFormStoreOrThrow } from '#imports'
+import { iconMap, isBt, isHm, isMm, preFilledModes, useGlobal, useMetas, useSharedFormStoreOrThrow } from '#imports'
 
-const { sharedFormView, submitForm, v$, formState, notFound, formColumns, submitted, secondsRemain, isLoading } =
+const { sharedFormView, submitForm, v$, formState, notFound, formColumns, submitted, secondsRemain, isLoading, sharedViewMeta } =
   useSharedFormStoreOrThrow()
+
+const { getMeta } = useMetas()
+
+const route = useRoute()
+
+if (formColumns.value && sharedViewMeta.value.preFilledMode !== preFilledModes.Disabled && Object.keys(route.query).length > 0) {
+  for (const column of formColumns.value) {
+    if (column.title && route.query[column.title.toLowerCase()]) {
+      if (isVirtualCol(column) && (isBt(column) || isHm(column) || isMm(column))) {
+        let pk = ''
+        let pv = ''
+        getMeta(column.colOptions?.fk_related_model_id as string).then((rel) => {
+          pk = rel?.columns?.find((c) => c.pk === 1)?.title || ''
+          pv = rel?.columns?.find((c) => c.pv === 1)?.title || ''
+          const virtData = (route.query[column.title] as string).split(';')
+          if (virtData.length) {
+            formState.value[column.title] = []
+            virtData.every((virtItem) => {
+              const virtRow = virtItem.split('|')
+              if (isBt(column)) {
+                formState.value[column.title] = { [pk]: virtRow[0], [pv]: virtRow[1] }
+                return false
+              } else {
+                formState.value[column.title] = [...formState.value[column.title], { [pk]: virtRow[0], [pv]: virtRow[1] }]
+                return true
+              }
+            })
+          }
+        })
+      } else {
+        formState.value[column.title] = route.query[column.title.toLowerCase()]
+      }
+      if (sharedViewMeta.value.preFilledMode === preFilledModes.Hidden) column.show = false
+      if (sharedViewMeta.value.preFilledMode === preFilledModes.Locked) column.read_only = true
+    }
+  }
+}
 
 function isRequired(_columnObj: Record<string, any>, required = false) {
   let columnObj = _columnObj
@@ -168,6 +205,7 @@ const onDecode = async (scannedCodeValue: string) => {
                         :data-testid="`nc-form-input-cell-${field.label || field.title}`"
                         :class="`nc-form-input-${field.title?.replaceAll(' ', '')}`"
                         :column="field"
+                        :read-only="field.read_only"
                         edit-enabled
                       />
                       <a-button

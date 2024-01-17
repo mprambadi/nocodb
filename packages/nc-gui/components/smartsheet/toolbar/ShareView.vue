@@ -9,6 +9,7 @@ import {
   iconMap,
   isRtlLang,
   message,
+  preFilledModes,
   ref,
   storeToRefs,
   useBase,
@@ -83,6 +84,14 @@ const viewTheme = computed({
       withTheme,
     }
     saveTheme()
+  },
+})
+
+const preFilledMode = computed({
+  get: () => shared.value.meta?.preFilledMode || 'default',
+  set: (preFilled) => {
+    shared.value.meta = { ...shared.value.meta, preFilledMode: preFilled }
+    savePreFilledMode()
   },
 })
 
@@ -212,6 +221,11 @@ watch(passwordProtected, (value) => {
     saveShareLinkPassword()
   }
 })
+
+async function savePreFilledMode() {
+  await updateSharedViewMeta()
+  $e(`a:view:share:${preFilledMode.value}-prefilled-mode`)
+}
 
 const { locale } = useI18n()
 
@@ -400,8 +414,39 @@ const copyIframeCode = async () => {
 
           <div v-if="shared.type === ViewTypes.FORM && isRtl">
             <a-checkbox v-model:checked="withRTL" data-testid="nc-modal-share-view__locale" class="!text-sm">
-              {{ $t('activity.rtlOrientation') }}
+              {{ $t('activity.rtlOrientation') }} asdfasdf
             </a-checkbox>
+          </div>
+
+          <div v-if="shared.type === ViewTypes.FORM && !surveyMode" class="flex flex-col gap-3">
+            <!-- pre-filled fields -->
+            <div class="text-gray-500 border-b-1">{{ $t('msg.info.preFilledFields.title') }}</div>
+            <div class="px-1 flex flex-col gap-2">
+              <div>
+                <a-select v-model:value="preFilledMode" class="w-full">
+                  <a-select-option :value="preFilledModes.Default">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionAllow') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Disabled">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionDisable') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Locked">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionLock') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Hidden">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionHide') }}
+                    </div>
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
           </div>
         </div>
       </div>

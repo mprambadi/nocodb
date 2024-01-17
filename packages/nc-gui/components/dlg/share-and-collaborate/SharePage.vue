@@ -49,6 +49,18 @@ const url = computed(() => {
   return sharedViewUrl() ?? ''
 })
 
+const preFilledMode = computed({
+  get: () => activeView.value?.meta.preFilledMode || 'default',
+  set: (preFilledMode) => {
+    if (!activeView.value?.meta) return
+    activeView.value.meta = {
+      ...activeView.value.meta,
+      preFilledMode,
+    }
+    savePreFilledMode()
+  },
+})
+
 const passwordProtectedLocal = ref(false)
 
 const passwordProtected = computed(() => {
@@ -236,6 +248,11 @@ async function saveTheme() {
   $e(`a:view:share:${viewTheme.value ? 'enable' : 'disable'}-theme`)
 }
 
+async function savePreFilledMode() {
+  await updateSharedView()
+  $e(`a:view:share:${preFilledMode.value}-prefilled-mode`)
+}
+
 async function updateSharedView() {
   try {
     if (!activeView.value?.meta) return
@@ -382,6 +399,37 @@ const isPublicShared = computed(() => {
                 />
               </div>
             </Transition>
+          </div>
+
+          <div v-if="activeView?.type === ViewTypes.FORM && !surveyMode" class="flex flex-col gap-3">
+            <!-- pre-filled fields -->
+            <div class="text-black">{{ $t('msg.info.preFilledFields.title') }}</div>
+            <div class="px-1 flex flex-col gap-2">
+              <div>
+                <a-select v-model:value="preFilledMode" class="w-full">
+                  <a-select-option :value="preFilledModes.Default">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionAllow') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Disabled">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionDisable') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Locked">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionLock') }}
+                    </div>
+                  </a-select-option>
+                  <a-select-option :value="preFilledModes.Hidden">
+                    <div class="flex flex-row h-full justify-start items-center">
+                      {{ $t('msg.info.preFilledFields.optionHide') }}
+                    </div>
+                  </a-select-option>
+                </a-select>
+              </div>
+            </div>
           </div>
         </div>
       </template>

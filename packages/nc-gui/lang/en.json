@@ -1197,6 +1197,13 @@
       "computedFieldEditWarning": "contents are read-only",
       "computedFieldDeleteWarning": "contents are read-only",
       "noMoreRecords": "No more records",
+      "preFilledFields": {
+        "title": "Pre-filled Fields",
+        "optionAllow": "Allow pre-filling fields",
+        "optionDisable": "Disable pre-filling fields",
+        "optionLock": "Lock pre-filled fields as read-only",
+        "optionHide": "Hide pre-filled fields"
+      },      
       "tokenNameNotEmpty": "Token name should not be empty",
       "tokenNameMaxLength": "Token name should not be more than 255 characters",
       "dbNameRequired": "Database name is required",
