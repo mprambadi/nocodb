@@ -62,7 +62,7 @@ jobs:
 
   # Build, install, publish frontend and backend to npm
   release-npm:
-    needs: [pr-to-master, process-input]
+    needs: [process-input]
     uses: ./.github/workflows/release-npm.yml
     with:
       tag: ${{ needs.process-input.outputs.target_tag }}
@@ -83,7 +83,7 @@ jobs:
 
   # Build docker image and push to docker hub
   release-docker:
-    needs: [release-draft-note, process-input]
+    needs: [process-input]
     uses: ./.github/workflows/release-docker.yml
     with:
       currentVersion: 'N/A'
