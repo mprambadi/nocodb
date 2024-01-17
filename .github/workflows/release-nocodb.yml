@@ -24,7 +24,7 @@ jobs:
   # Process Input
   process-input:
     runs-on: ubuntu-latest
-    needs: validate-branch
+    # needs: validate-branch
     outputs:
       target_tag: ${{ steps.process-input.outputs.target_tag }}
       prev_tag: ${{ steps.process-input.outputs.prev_tag }}
